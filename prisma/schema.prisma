@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Image {
+  id              Int               @id @default(autoincrement())
+  height          Int
+  width           Int
+  prompt          String
+  userId          String
+  url             String
+  tags            String[]
+  created_At      DateTime          @default(now())
+  isFeatured      Boolean           @default(true)
+  User            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Like            Like[]
+  BackgroundColor BackgroundColor[]
+}
+
+model BackgroundColor {
+  id         Int    @id @default(autoincrement())
+  color      String
+  colorCode  String
+  percentage Float
+  imageId    Int
+  Image      Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id         Int      @id @default(autoincrement())
+  user_id    String
+  imageId    Int
+  Image      Image    @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  User       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_At DateTime @default(now())
+}
+
+model User {
+  id         String   @id @unique
+  username   String
+  email      String
+  about      String?
+  pp         String
+  token      Int      @default(100)
+  created_At DateTime @default(now())
+  Image      Image[]
+  Like       Like[]
+}
